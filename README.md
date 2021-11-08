@@ -21,7 +21,7 @@ while True:
     while (not i2c.have_recv_req()) and (not i2c.have_send_req()):
         pass
 
-    # Only support read/write requests for address 0x01.
+    # Only support read/write requests for register 0x01.
     regAddress = regAddressBuff[0]
     if regAddress != 0x01:
         # Handle invalid address.

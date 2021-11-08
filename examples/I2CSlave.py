@@ -31,26 +31,26 @@ def poll_i2c(i2c, data):
     if not i2c.have_recv_req():
         return
     i2c.recv(regAddressBuff, timeout=0)
-    
+
     # Wait for master to send either the read or write.
     while (not i2c.have_recv_req()) and (not i2c.have_send_req()):
         pass
-    
-    # Only support read/write requests for address 0x01.
+
+    # Only support read/write requests for register 0x01.
     regAddress = regAddressBuff[0]
     if regAddress != 0x01:
         ignore_bad_reg_address(i2c, regAddress)
         return
-    
+
     # Handle the master read/write request.
     if i2c.have_recv_req():
         i2c.recv(data, timeout=1000)
     else:
         i2c.send(data, timeout=1000)
-    
+
 
 i2c = i2cperipheral.I2CPeripheral(bus=0, sclPin=1, sdaPin=0, address=0x12)
 data = bytearray(4)
 while True:
     poll_i2c(i2c, data)
-    
+
