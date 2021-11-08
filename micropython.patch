@@ -1,0 +1,104 @@
+diff -Naurb a/micropython/mpy-cross/main.c b/micropython/mpy-cross/main.c
+--- a/micropython/mpy-cross/main.c
++++ b/micropython/mpy-cross/main.c
+@@ -277,6 +277,9 @@ MP_NOINLINE int main_(int argc, char **argv) {
+                 } else if (strcmp(arch, "armv6") == 0) {
+                     mp_dynamic_compiler.native_arch = MP_NATIVE_ARCH_ARMV6;
+                     mp_dynamic_compiler.nlr_buf_num_regs = MICROPY_NLR_NUM_REGS_ARM_THUMB_FP;
++                } else if (strcmp(arch, "armv6m") == 0) {
++                    mp_dynamic_compiler.native_arch = MP_NATIVE_ARCH_ARMV6M;
++                    mp_dynamic_compiler.nlr_buf_num_regs = MICROPY_NLR_NUM_REGS_ARM_THUMB_FP;
+                 } else if (strcmp(arch, "armv7m") == 0) {
+                     mp_dynamic_compiler.native_arch = MP_NATIVE_ARCH_ARMV7M;
+                     mp_dynamic_compiler.nlr_buf_num_regs = MICROPY_NLR_NUM_REGS_ARM_THUMB_FP;
+diff -Naurb a/micropython/py/dynruntime.mk b/micropython/py/dynruntime.mk
+--- a/micropython/py/dynruntime.mk
++++ b/micropython/py/dynruntime.mk
+@@ -36,6 +36,7 @@ CFLAGS += -U _FORTIFY_SOURCE # prevent use of __*_chk libc functions
+ MPY_CROSS_FLAGS += -march=$(ARCH)
+ 
+ SRC_O += $(addprefix $(BUILD)/, $(patsubst %.c,%.o,$(filter %.c,$(SRC))))
++SRC_O += $(addprefix $(BUILD)/, $(patsubst %.S,%.o,$(filter %.S,$(SRC))))
+ SRC_MPY += $(addprefix $(BUILD)/, $(patsubst %.py,%.mpy,$(filter %.py,$(SRC))))
+ 
+ ################################################################################
+@@ -55,6 +56,13 @@ CROSS =
+ CFLAGS += -fno-stack-protector
+ MICROPY_FLOAT_IMPL ?= double
+ 
++else ifeq ($(ARCH),armv6m)
++
++# thumb
++CROSS = arm-none-eabi-
++CFLAGS += -mthumb -mcpu=cortex-m0
++MICROPY_FLOAT_IMPL ?= none
++
+ else ifeq ($(ARCH),armv7m)
+ 
+ # thumb
+@@ -118,7 +126,7 @@ $(BUILD_DIRS):
+ 	$(Q)$(MKDIR) -p $@
+ 
+ # Preprocess all source files to generate $(CONFIG_H)
+-$(CONFIG_H): $(SRC)
++$(CONFIG_H): $(SRC) Makefile
+ 	$(ECHO) "GEN $@"
+ 	$(Q)$(MPY_LD) --arch $(ARCH) --preprocess -o $@ $^
+ 
+@@ -127,6 +135,12 @@ $(BUILD)/%.o: %.c $(CONFIG_H) Makefile
+ 	$(ECHO) "CC $<"
+ 	$(Q)$(CROSS)gcc $(CFLAGS) -o $@ -c $<
+ 
++# Build .o from .S source files
++$(BUILD)/%.o: %.S Makefile
++	$(ECHO) "CC $<"
++	$(Q)$(CROSS)gcc -x assembler-with-cpp $(CFLAGS) -o $@ -c $<
++
++
+ # Build .mpy from .py source files
+ $(BUILD)/%.mpy: %.py
+ 	$(ECHO) "MPY $<"
+diff -Naurb a/micropython/tools/mpy_ld.py b/micropython/tools/mpy_ld.py
+--- a/micropython/tools/mpy_ld.py
++++ b/micropython/tools/mpy_ld.py
+@@ -38,6 +38,7 @@ import makeqstrdata as qstrutil
+ MPY_VERSION = 5
+ MP_NATIVE_ARCH_X86 = 1
+ MP_NATIVE_ARCH_X64 = 2
++MP_NATIVE_ARCH_ARMV6M = 4
+ MP_NATIVE_ARCH_ARMV7M = 5
+ MP_NATIVE_ARCH_ARMV7EMSP = 7
+ MP_NATIVE_ARCH_ARMV7EMDP = 8
+@@ -97,6 +98,17 @@ def asm_jump_arm(entry):
+     return struct.pack("<HH", b0, b1)
+ 
+ 
++def asm_jump_thumb(entry):
++    b_off = entry - 4
++    if b_off >= -2048 and b_off <= 2046:
++        # Signed value fits in 12 bits
++        b0 = 0xE000 | (b_off >> 1 & 0x07FF)
++        b1 = 0
++    else:
++        raise LinkError("Branch offset to entry point is too large for Thumb")
++    return struct.pack("<HH", b0, b1)
++
++
+ def asm_jump_xtensa(entry):
+     jump_offset = entry - 4
+     jump_op = jump_offset << 6 | 6
+@@ -131,6 +143,14 @@ ARCH_DATA = {
+         (R_X86_64_GOTPCREL, R_X86_64_REX_GOTPCRELX),
+         asm_jump_x86,
+     ),
++    "armv6m": ArchData(
++        "EM_ARM",
++        MP_NATIVE_ARCH_ARMV6M << 2 | MICROPY_PY_BUILTINS_STR_UNICODE,
++        2,
++        4,
++        (R_ARM_GOT_BREL,),
++        asm_jump_thumb,
++    ),
+     "armv7m": ArchData(
+         "EM_ARM",
+         MP_NATIVE_ARCH_ARMV7M << 2 | MICROPY_PY_BUILTINS_STR_UNICODE,

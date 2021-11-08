@@ -1,0 +1,87 @@
+20c20
+< #define PICO_DIVIDER_CALL_IDIV0 1
+---
+> #define PICO_DIVIDER_CALL_IDIV0 0
+25c25
+< #define PICO_DIVIDER_CALL_LDIV0 1
+---
+> #define PICO_DIVIDER_CALL_LDIV0 0
+31c31
+< .section RAM_SECTION_NAME(\name), "ax"
+---
+> //.section RAM_SECTION_NAME(\name), "ax"
+33c33
+< .section SECTION_NAME(\name), "ax"
+---
+> //.section SECTION_NAME(\name), "ax"
+96a97
+> #ifndef I2CP_OPTIMIZE_SPACE
+98c99
+< div_section WRAPPER_FUNC_NAME(__aeabi_idiv)
+---
+> div_section __aeabi_idiv
+100,101c101,102
+< wrapper_func __aeabi_idiv
+< wrapper_func __aeabi_idivmod
+---
+> regular_func __aeabi_idiv
+> regular_func __aeabi_idivmod
+109c110
+<     bcs divmod_s32s32_savestate
+---
+>     bcs __divmod_s32s32_savestate // NO_RELOC - divmod_s32s32_savestate
+153a155
+> __divmod_s32s32_savestate:
+160a163
+> #endif /* !I2CP_OPTIMIZE_SPACE */
+163c166
+< div_section WRAPPER_FUNC_NAME(__aeabi_uidiv)
+---
+> div_section __aeabi_uidiv
+166,167c169,170
+< wrapper_func __aeabi_uidiv
+< wrapper_func __aeabi_uidivmod
+---
+> regular_func __aeabi_uidiv
+> regular_func __aeabi_uidivmod
+173c176
+<     bcs divmod_u32u32_savestate
+---
+>     bcs __divmod_u32u32_savestate // NO_RELOC - divmod_u32u32_savestate
+214a218
+> __divmod_u32u32_savestate:
+221c225,226
+< div_section WRAPPER_FUNC_NAME(__aeabi_ldiv)
+---
+> #ifndef I2CP_OPTIMIZE_SPACE
+> div_section __aeabi_ldiv
+224c229
+< wrapper_func __aeabi_ldivmod
+---
+> regular_func __aeabi_ldivmod
+235c240
+<     b divmod_s64s64_unsafe
+---
+>     b __divmod_s64s64_unsafe
+252c257
+< wrapper_func __aeabi_uldivmod
+---
+> regular_func __aeabi_uldivmod
+262,263c267,268
+<     bcs divmod_u64u64_savestate
+<     b divmod_u64u64_unsafe
+---
+>     bcs __divmod_u64u64_savestate
+>     b __divmod_u64u64_unsafe
+264a270
+> __divmod_u64u64_savestate:
+287a294
+> __divmod_s64s64_unsafe:
+295c302
+<  bge divmod_u64u64_unsafe  @ both positive
+---
+>  bge __divmod_u64u64_unsafe  @ both positive
+346a354
+> __divmod_u64u64_unsafe:
+880a889
+> #endif /* !I2CP_OPTIMIZE_SPACE */

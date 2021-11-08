@@ -1,0 +1,14 @@
+11a12
+> #ifndef I2CP_OPTIMIZE_SPACE
+13a15
+> #endif // !I2CP_OPTIMIZE_SPACE
+15,16c17,18
+< i2c_inst_t i2c0_inst = {i2c0_hw, false};
+< i2c_inst_t i2c1_inst = {i2c1_hw, false};
+---
+> i2c_inst_t i2c0_inst; // Initialize in mpy_init() // = {i2c0_hw, false};
+> i2c_inst_t i2c1_inst; // Initialize in mpy_init() // = {i2c1_hw, false};
+132a135
+> #ifndef I2CP_OPTIMIZE_SPACE
+335a339
+> #endif // !I2CP_OPTIMIZE_SPACE

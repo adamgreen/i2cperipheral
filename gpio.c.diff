@@ -1,0 +1,25 @@
+17c17,18
+< static gpio_irq_callback_t _callbacks[NUM_CORES];
+---
+> #ifndef I2CP_OPTIMIZE_SPACE
+> gpio_irq_callback_t _callbacks[NUM_CORES];
+25a27
+> #endif // !I2CP_OPTIMIZE_SPACE
+43a46
+> #ifndef I2CP_OPTIMIZE_SPACE
+47a51
+> #endif // !I2CP_OPTIMIZE_SPACE
+59a64
+> #ifndef I2CP_OPTIMIZE_SPACE
+140a146
+> #ifdef UNDONE
+156a163
+> #endif // UNDONE
+178a186
+> #ifdef UNDONE
+187a196
+> #endif
+228c237
+< 
+---
+> #endif // !I2CP_OPTIMIZE_SPACE

@@ -1,0 +1,12 @@
+# Files to ignore
+
+# Python environment.
+.env/
+
+# Modified Pico-SDK files.
+divider.S
+gpio.c
+i2c.c
+
+# Build output
+build/
