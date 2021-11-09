@@ -137,7 +137,7 @@ Sends data to the controller (master) using the following parameters:
 * *buffer* is the bytearray of bytes to send. It can also be an integer representing the value of the single byte to be sent.
 * *timeout* is an optional parameter indicating the timeout in microseconds. It defaults to 5 seconds.
 
-Returns: Will throw an OSError exception if the send times out.
+Returns: Will throw an OSError exception if the send times out or the transfer is aborted by the I2C hardware.
 
 Examples:
 ```python
