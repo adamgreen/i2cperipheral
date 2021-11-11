@@ -55,10 +55,8 @@ CFLAGS += -std=gnu11
 
 init :
 	@echo Initializing git submodules...
-	@git submodule init
-	@git submodule update micropython
-	@cd micropython; git submodule init
-	@cd micropython; git submodule update lib/pico-sdk
+	@git submodule update --init micropython
+	@cd micropython; git submodule update --init lib/pico-sdk
 	@echo Patching micropython repository sources for ARMv6m support...
 	-@patch -N -p1 <micropython.patch 1>/dev/null ;exit 0
 	@echo Building mpy-cross...
