@@ -10,7 +10,7 @@ def ignore_bad_reg_address(i2c, regAddress):
         done = False
         while not done:
             try:
-                i2c.rev(dummyBuff, timeout=1000)
+                i2c.recv(dummyBuff, timeout=1000)
             except OSError:
                 # Have finally recevied timeout so can wait
                 # for next command now.
