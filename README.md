@@ -1,3 +1,6 @@
+# Archived - October 27th, 2023
+**This project is no longer under active development and requires changes to work on the latest versions of MicroPython. Someone who is well versed on .mpy development may be able to fork this project and get it working again in the future so I will leave it here for reference.**
+
 # i2cperipheral - MicroPython I2C Peripheral Module for the RP2040
 This ```i2cperipheral``` module provides the ```I2CPeripheral``` class used to implement a I2C peripheral (slave) on the RP2040 microcontroller using its built-in I2C hardware. It is built as a native MicroPython ```.mpy``` package and just needs to be installed in your device's ```sys.path``` ('/', '/lib', ...).
 
